@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>加密解密算法（李钟航）</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            font-family: "微软雅黑";
+        }
+        body{
+            font-family: "微软雅黑";
+        }
+        #app{
+            width: 600px;
+            height: 550px;
+            top: 50%;
+            left: 50%;
+            margin-left: -300px;
+            margin-top:-275px; 
+            position: absolute;
+            background-color: #545c64;
+        }
+        .el-menu-item{
+            width: 100px;
+            position: relative;
+            text-align: center;
+        }
+        .el-radio-button__orig-radio:checked+.el-radio-button__inner{
+            background-color: #e6a23c !important;
+            border-color: #e6a23c !important;
+            box-shadow: -1px 0 0 0 #e6a23c !important;
+            color:white !important;
+        }
+        .el-radio-button__inner:hover{
+            color:#e6a23c !important;
+        }
+    </style>
+    <script src="./js/vue.js"></script>
+    <script src="./js/code_index.js"></script>
+    <link rel="stylesheet" href="./css/code_index.css">
+
+    <script>
+        window.onload = function() {
+            let vm = new Vue({
+                el: '#app',
+                data() {
+                    return {
+                        //默认选择加密解密算法
+                        activeIndex: "1",
+                        //切换存值
+                        changepage:1,
+
+                        //凯撒加密
+                        kaisa_num: 4,
+                        ifshow_kaisa_key:true,
+
+                        //单表置换密码加密
+                        list_key:'',
+                        ifshow_list_key:false,
+
+                        //输入框内容
+                        input_txt:'',
+
+                        //操作选择
+                        op_choice:'加密',
+
+                        //输出框内容
+                        output_txt:''
+                    };
+                },
+                methods: {
+                    //导航切换
+                    handleSelect(key, keyPath) {
+                        this.input_txt = '';
+                        this.output_txt = '';
+                        //console.log(key, keyPath);
+                        this.changepage = key;
+                        if (key == 1 || key ==5){
+                            this.ifshow_kaisa_key = true;
+                        }else{
+                            this.ifshow_kaisa_key = false;
+                        }
+                        if (key == 3 || key == 4 || key == 6){
+                            this.ifshow_list_key = true;
+                        }else{
+                            this.ifshow_list_key = false;
+                        }
+                    },
+
+                    //计数器改变
+                    handleChange(value) {
+                        console.log(value);
+                    },
+
+                    //清空
+                    clear(){
+                        this.input_txt = '';
+                        this.output_txt = '';  
+                    },
+
+                    //凯撒算法
+                    kaisa_way(){
+                        let _this = this;
+                        let tmp_out = [];
+                        let charcount;
+                        let re_up=/[A-Z]/;
+                        let re_low=/[a-z]/;
+                        
+                        for (let i = 0; i<_this.input_txt.length; i++){
+                            if (re_up.test(_this.input_txt[i])){
+                                charcount = _this.input_txt[i].charCodeAt();
+                                if(_this.op_choice == "加密"){
+                                    charcount += _this.kaisa_num;
+                                }else{
+                                    charcount -= _this.kaisa_num;
+                                }
+                                if(charcount>=65&&charcount<=90){
+                                    tmp_out.push(String.fromCharCode(charcount));
+                                }else{
+                                    if(_this.op_choice =="加密"){
+                                        charcount = charcount - 90 + 65 - 1;
+                                    }else{
+                                        charcount = charcount + 90 - 65 + 1;
+                                    }
+                                    
+                                    tmp_out.push(String.fromCharCode(charcount));
+                                }
+                            }
+                            else if (re_low.test(_this.input_txt[i])){
+                                charcount = _this.input_txt[i].charCodeAt();
+                                if(_this.op_choice == "加密"){
+                                    charcount += _this.kaisa_num;
+                                }else{
+                                    charcount -= _this.kaisa_num;
+                                }
+                                if(charcount>=97&&charcount<=122){
+                                    tmp_out.push(String.fromCharCode(charcount));
+                                }else{
+                                    if(_this.op_choice =="加密"){
+                                        charcount = charcount - 122 + 97 - 1;
+                                    }else{
+                                        charcount = charcount + 122 - 97 + 1;
+                                    }
+                                    
+                                    tmp_out.push(String.fromCharCode(charcount));
+                                }
+                            }
+                            else{
+                                tmp_out.push(_this.input_txt[i]);
+                            }
+                        }
+                        _this.output_txt = tmp_out.join(""); 
+                        _this.$notify({
+                            title: '成功',
+                            message: '加密或解密操作成功',
+                            type: 'success'
+                        });
+                    },
+
+                    //字母倒排序算法
+                    charPai_way(){
+                        let _this = this;
+                        let tmp_out = [];
+                        let charcount;
+                        let re_up=/[A-Z]/;
+                        let re_low=/[a-z]/;
+                        for (let i = 0; i<_this.input_txt.length; i++){
+                            if (re_up.test(_this.input_txt[i])){
+                                charcount = _this.input_txt[i].charCodeAt();
+                                charcount = 65 + 26 - (charcount - 65) - 1; 
+                                tmp_out.push(String.fromCharCode(charcount));
+                                
+                            }
+                            else if (re_low.test(_this.input_txt[i])){
+                                charcount = _this.input_txt[i].charCodeAt();
+                                charcount = 97 + 26 - (charcount - 97) - 1; 
+                                tmp_out.push(String.fromCharCode(charcount));    
+                            }
+                            else{
+                                tmp_out.push(_this.input_txt[i]);
+                            }
+                        }
+                        _this.output_txt = tmp_out.join(""); 
+                        _this.$notify({
+                            title: '成功',
+                            message: '加密或解密操作成功',
+                            type: 'success'
+                        });
+                    },
+
+                    //单表置换密码
+                    listchange_way(){
+                        let _this = this;
+                        let tmp_key = [];
+                        let charcount;
+                        let re_up=/[A-Z]/;
+                        let re_low=/[a-z]/;
+                        let re_all = /[a-zA-Z]/;
+                        let List = [];//置换表
+                        let Num = 0;
+                        let CipherText = []
+                        let Alpha = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ];
+                        _this.list_key = _this.list_key.toUpperCase();
+                        for(let i = 0; i<_this.list_key.length; i++){
+                            if(re_all.test(_this.list_key[i]) == false){
+                                continue;
+                            }
+                            tmp_key.push(_this.list_key[i]);
+                        }
+                        _this.list_key = tmp_key.join("");
+                        //构造置换表
+                        for (let i = 0; i<_this.list_key.length; i++ ){
+                            if (re_all.test(_this.list_key[i]) == false)
+                                continue;
+                            for (let j = 0; j < 26 ; j++){
+                                if (Alpha[j] == _this.list_key[i]){
+                                    Alpha[j] = 0;
+                                    List[Num++] = _this.list_key[i];
+                                }
+                            }
+                        }
+                        for (let i = 0; i<26; i++){
+                            if(!Alpha[i])
+                                continue;
+                            List[Num++] = Alpha[i];
+                        }
+                        //加密解密操作
+                        if (_this.op_choice == "加密"){
+                            _this.input_txt = _this.input_txt.toLowerCase();
+                            for (let i = 0; i<_this.input_txt.length;i++){
+                                if (re_all.test(_this.input_txt[i]) == false)
+                                    CipherText[i] = _this.input_txt[i];
+                                else if(re_up.test(_this.input_txt[i]) == true)
+                                    CipherText[i] = List[_this.input_txt[i].charCodeAt() - 65];
+                                else
+                                    CipherText[i] = List[_this.input_txt[i].charCodeAt() - 97];
+                            }
+                            _this.$notify({
+                                title: '成功',
+                                message: '加密或解密操作成功',
+                                type: 'success'
+                            });
+                        }
+                        if (_this.op_choice == "解密"){
+                            _this.input_txt = _this.input_txt.toUpperCase();
+                            for (let i = 0; i<_this.input_txt.length;i++){
+                                for (let j = 0; j<26; j++){
+                                    if (_this.input_txt[i] == List[j]){
+                                        CipherText.push(String.fromCharCode(97+j));
+                                    }
+                                }
+                            }
+                            _this.$notify({
+                                title: '成功',
+                                message: '加密或解密操作成功',
+                                type: 'success'
+                            });
+                        }
+
+                        _this.output_txt = CipherText.join("");
+                    },
+
+                    //维吉利亚
+                    wigi_way(){
+                        let _this = this;
+                        let tmp_key = [];
+                        let re_up=/[A-Z]/;
+                        let re_low=/[a-z]/;
+                        let re_all = /[a-zA-Z]/;
+                        let List = [];//累加表
+                        let charcount;
+                        let CipherText = []
+                        _this.list_key = _this.list_key.toUpperCase();
+                        for(let i = 0; i<_this.list_key.length; i++){
+                            if(re_all.test(_this.list_key[i]) == false){
+                                continue;
+                            }
+                            tmp_key.push(_this.list_key[i]);
+                        }
+                        _this.list_key = tmp_key.join("");
+                        if(_this.op_choice == "加密"){
+                            _this.input_txt = _this.input_txt.toLowerCase();
+                            for(let i = 0; i < _this.input_txt.length; i++){
+                                if(re_all.test(_this.input_txt[i]) == false){
+                                    CipherText.push(_this.input_txt[i]);
+                                    continue;
+                                }
+                                List[i] = _this.list_key[i%_this.list_key.length];
+                                charcount = ((_this.input_txt[i].charCodeAt()-97)+(List[i].charCodeAt()-65))%26+65;
+                                CipherText.push(String.fromCharCode(charcount)); 
+                            }
+                            _this.$notify({
+                                title: '成功',
+                                message: '加密或解密操作成功',
+                                type: 'success'
+                            });
+                        }
+                        if(_this.op_choice == "解密"){
+                            _this.input_txt = _this.input_txt.toUpperCase();
+                            for(let i = 0; i < _this.input_txt.length; i++){
+                                if(re_all.test(_this.input_txt[i]) == false){
+                                    CipherText.push(_this.input_txt[i]);
+                                    continue;
+                                }
+                                List[i] = _this.list_key[i%_this.list_key.length];
+                                charcount = _this.input_txt[i].charCodeAt()-65;
+                                if(charcount<(List[i].charCodeAt()-65)){
+                                    charcount = charcount + 26
+                                }
+                                CipherText.push(String.fromCharCode(charcount-(List[i].charCodeAt()-65)+97))
+                            }
+                            _this.$notify({
+                                title: '成功',
+                                message: '加密或解密操作成功',
+                                type: 'success'
+                            });
+                        }
+                        
+                        _this.output_txt = CipherText.join("");
+
+                    },
+
+                    //转换加密(1)
+                    change_way(){
+                        let _this = this;
+                        let tmp_input = [];
+                        let re_up=/[A-Z]/;
+                        let re_low=/[a-z]/;
+                        let re_all = /[a-zA-Z]/;
+                        let gap = _this.kaisa_num;
+                        let charcount;
+                        let CipherText = [];
+                        
+                        for(let i = 0; i<_this.input_txt.length; i++){
+                            if(re_all.test(_this.input_txt[i]) == false){
+                                continue;
+                            }
+                            tmp_input.push(_this.input_txt[i])
+                        }
+                        _this.input_txt = tmp_input.join("");
+                        
+                        if(_this.input_txt.length%_this.kaisa_num==_this.kaisa_num-1||_this.input_txt.length%_this.kaisa_num==0){
+
+                        }else{
+                            _this.$notify.error({
+                                title: '错误',
+                                message: '您输入的明文或者密文必须满足：(文本长度length)÷(间隔数num)等于0或num-1！'
+                            });
+                            return;
+                        }
+
+                        if(_this.op_choice == "加密"){
+                            //转二维
+                            let arr = [];
+                            for(var i=0;i<Math.ceil(_this.input_txt.length/gap);i++){ //一维长度
+                                arr[i]=new Array();    //声明二维
+                                for(var j=0;j<gap;j++){     
+                                    arr[i][j]=_this.input_txt[i*gap+j];
+                                }
+                            }
+                            //输出
+                            for(var i=0;i<gap;i++){ 
+                                for(var j=0;j<Math.ceil(_this.input_txt.length/gap);j++){   
+                                    CipherText.push(arr[j][i]);
+                                }
+                            }
+                            _this.$notify({
+                                title: '成功',
+                                message: '加密或解密操作成功',
+                                type: 'success'
+                            });
+                        }
+                        if(_this.op_choice == "解密"){
+                            //转二维
+                            let arr = [];
+                            for(var j=0;j<Math.ceil(_this.input_txt.length/gap);j++){  
+                                arr[j]=[];    
+                            }
+                            for(var i=0;i<gap;i++){
+                                for(var k=0;k<Math.ceil(_this.input_txt.length/gap);k++){  
+                                    arr[k][i]=_this.input_txt[i*Math.ceil(_this.input_txt.length/gap)+k];
+                                }
+                            }
+                            //输出
+                            for(var i=0;i<Math.ceil(_this.input_txt.length/gap);i++){ 
+                                for(var j=0;j<gap;j++){   
+                                    CipherText.push(arr[i][j]);
+                                }
+                            }
+                            _this.$notify({
+                                title: '成功',
+                                message: '加密或解密操作成功',
+                                type: 'success'
+                            });
+                        }
+                        _this.output_txt = CipherText.join("");
+                    },
+                    //转换加密(2)
+                    change_way2(){
+                        let _this = this;
+                        let tmp_input = [];
+                        let tmp_key = [];
+                        let re_up=/[A-Z]/;
+                        let re_low=/[a-z]/;
+                        let re_all = /[a-zA-Z]/;
+                        let charcount;
+                        let CipherText = [];
+                        let Array_container = [];
+                        let tmp_char;
+                        let tmp_char2;
+                        //key输入处理
+                        for(let i = 0; i<_this.list_key.length; i++){
+                            if(re_all.test(_this.list_key[i]) == false){
+                                continue;
+                            }
+                            tmp_key.push(_this.list_key[i].toUpperCase());
+                        }
+                        _this.list_key = tmp_key.join("");
+                        if(/(.).*?\1/.test( _this.list_key )==true){
+                            _this.$notify({
+                                title: '错误',
+                                message: '秘钥key不能含有重复的字母',
+                                type: 'error'
+                            });
+                            return;
+                        }
+                        //input预处理
+                        for(let i = 0; i<_this.input_txt.length; i++){
+                            if(re_all.test(_this.input_txt[i]) == false){
+                                if(_this.input_txt[i]!="*"){
+                                    continue;
+                                }
+                                
+                            }
+                            tmp_input.push(_this.input_txt[i])
+                        }
+                        _this.input_txt = tmp_input.join("");
+                        //加密
+                        if(_this.op_choice=="加密"){                 
+                            //tmp数组容器创建及填充
+                            for(let i = 0; i<Math.ceil(_this.input_txt.length/_this.list_key.length); i++){
+                                Array_container[i] = new Array();
+                                for(let k = 0; k<_this.list_key.length; k++){
+                                    Array_container[i][k] = _this.input_txt[i*_this.list_key.length+k];
+                                }
+                            }
+                        
+                            //可行性预处理
+                            if(_this.input_txt.length%_this.list_key.length!=0){
+                                // _this.$notify({
+                                //     title: '错误',
+                                //     message: '您输入的明文或者密文必须满足：(文本长度length)÷(密钥长度length)等于0',
+                                //     type: 'error'
+                                // });
+                                // return;
+                                for(let i = _this.input_txt.length%_this.list_key.length; i<_this.list_key.length; i++){
+                                    Array_container[Math.ceil(_this.input_txt.length/_this.list_key.length-1)][i] = "*";
+                                }
+                            }
+                            console.log(Array_container[Math.ceil(_this.input_txt.length/_this.list_key.length-1)]);
+
+                            //key换位调序同时容器换位调序
+                            let key_arr = _this.list_key.split("");
+                            for (let i = 0; i <key_arr.length; i++){
+                                for(let j = key_arr.length-1;j>i; j--){
+                                    if(key_arr[j].charCodeAt()<key_arr[j-1].charCodeAt()){
+                                        tmp_char = key_arr[j];
+                                        key_arr[j] = key_arr[j-1];
+                                        key_arr[j-1] = tmp_char;
+                                        for(let k = 0; k<Math.ceil(_this.input_txt.length/_this.list_key.length); k++){
+                                            tmp_char2 = Array_container[k][j];
+                                            Array_container[k][j] = Array_container[k][j-1];
+                                            Array_container[k][j-1] = tmp_char2;
+                                        }
+                                    }
+                                }
+                            }
+
+                            //输出
+                            for(let i = 0; i<_this.list_key.length; i++){
+                                for(let j = 0; j<Math.ceil(_this.input_txt.length/_this.list_key.length); j++){
+                                    CipherText[i*Math.ceil(_this.input_txt.length/_this.list_key.length)+j] = Array_container[j][i];
+                                }
+                            }
+                            _this.output_txt = CipherText.join("").toUpperCase();
+                            _this.$notify({
+                                title: '成功',
+                                message: '加密或解密操作成功',
+                                type: 'success'
+                            });
+                        }
+                        //解密
+                        if(_this.op_choice=="解密"){
+                            //tmp数组容器创建及填充
+                            for(let m = 0; m<Math.ceil(_this.input_txt.length/_this.list_key.length); m++){
+                                Array_container[m] = new Array();
+                            }
+                            for(let i = 0; i<_this.list_key.length; i++){
+                                for(let k = 0; k<Math.ceil(_this.input_txt.length/_this.list_key.length); k++){
+                                    Array_container[k][i] = _this.input_txt[i*_this.input_txt.length/_this.list_key.length+k];
+                                }
+                            }
+                            //console.log(Array_container);
+                            
+                            //key排好序
+                            let key_arr = _this.list_key.split("");
+                            for (let i = 0; i <key_arr.length; i++){
+                                for(let j = key_arr.length-1;j>i; j--){
+                                    if(key_arr[j].charCodeAt()<key_arr[j-1].charCodeAt()){
+                                        tmp_char = key_arr[j];
+                                        key_arr[j] = key_arr[j-1];
+                                        key_arr[j-1] = tmp_char;
+                                    }
+                                }
+                            }
+                            let save_arr = [];
+                            for(let i = 0; i<Math.ceil(_this.input_txt.length/_this.list_key.length); i++){
+                                save_arr[i] = new Array();
+                            }
+                            let num = 0;
+                            for(let i = 65; i<=90; i++){
+                                let search_word = String.fromCharCode(i);
+                                for(let k = 0; k<_this.list_key.length; k++){
+                                    if(search_word == _this.list_key[k]){
+                                        for(let m = 0; m < Math.ceil(_this.input_txt.length/_this.list_key.length); m++){
+                                            save_arr[m][k] = Array_container[m][num]; 
+                                        }
+                                        num++;
+                                    }
+                                }
+                            }
+                            console.log(save_arr);
+                            for(let i = 0; i <Math.ceil(_this.input_txt.length/_this.list_key.length); i++){
+                                for(let k = 0; k<_this.list_key.length; k++){
+                                    CipherText.push(save_arr[i][k]);
+                                }
+                            }
+                            let tmp_output = [];
+                            _this.output_txt = CipherText.join("").toLowerCase();
+                            for(let i = 0; i<_this.output_txt.length; i++){
+                                if(re_low.test(_this.output_txt[i]) == false){
+                                    continue;
+                                }
+                                tmp_output.push(_this.output_txt[i])
+                            }
+                            _this.output_txt = tmp_output.join(""); 
+                            _this.$notify({
+                                title: '成功',
+                                message: '加密或解密操作成功',
+                                type: 'success'
+                            });
+                        }
+                        
+                        //MEGABUCK
+                        //please transfer one million dollars to my swiss bank account six two two
+                        //AFLLSKSOSELAWAI*TOOSSCT*LNMOMANTESILYNTWRNNTSOW*PAEDOBUOERIRICX*
+                        
+                    },
+                    //执行操作
+                    run_code(){
+                        var _this = this;
+                        if(_this.input_txt==''){
+                            _this.$notify({
+                                title: '错误',
+                                message: '输入框不能为空',
+                                type: 'error'
+                            });
+                            return;
+                        }
+                        if(_this.changepage == 1){
+                            _this.kaisa_way();
+                        }else if(_this.changepage == 2){
+                            _this.charPai_way();
+                        }else if(_this.changepage == 3){
+                            _this.listchange_way();
+                        }else if (_this.changepage == 4){
+                            _this.wigi_way();
+                        }else if (_this.changepage == 5){
+                            _this.change_way();
+                        }else{
+                            _this.change_way2();
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div id="app" >
+        <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+            <el-menu-item index="1">凯撒密码</el-menu-item>
+            <el-menu-item index="2">字母倒排序</el-menu-item>
+            <el-menu-item index="3">单表置换</el-menu-item>
+            <el-menu-item index="4">维吉利亚</el-menu-item>
+            <el-menu-item index="5">转换加密(1)</el-menu-item>
+            <el-menu-item index="6">转换加密(2)</el-menu-item>
+        </el-menu>  
+
+        <!-- 输入区域 -->
+        <div style="padding:5px; border:1px dashed #e6a23c; border-radius:10px; margin:10px;">
+            <el-popover placement="top-start" title="输入区域" width="200" trigger="hover" content="请在下方的文本框中输入你要加密或者解密的code">
+                <el-button type="warning" style="margin-left:20px;margin-top:20px;position:relative;" slot="reference">输入区域</el-button>
+            </el-popover>
+            <el-input-number v-show="ifshow_kaisa_key" type="warning" v-model="kaisa_num" @change="handleChange" :min="1" :max="26" label="密钥"></el-input-number>
+            <el-input v-show="ifshow_list_key" maxlength="26" placeholder="请输入Key" style="width:180px;" v-model="list_key" clearable></el-input><br>
+            <el-input type="textarea" style="margin-left:20px;margin-top:20px;margin-bottom:20px; width:530px;" :autosize="{ minRows: 3, maxRows: 5}"  placeholder="请输入需要加密或者解密的内容" v-model="input_txt"></el-input>
+        </div>
+        <!-- 操作区域 -->
+        <div style="padding:5px; border:1px dashed #e6a23c; border-radius:10px; margin:10px;">
+            <el-popover placement="top-start" title="操作区域" width="200" trigger="hover" content="请选择您要进行的操作方式">
+                <el-button type="warning" style="margin-left:20px;margin-top:10px;margin-bottom:10px;position:relative;" slot="reference">操作区域</el-button>
+            </el-popover>
+            <el-radio-group v-model="op_choice">
+                <el-radio-button label="加密"></el-radio-button>
+                <el-radio-button label="解密"></el-radio-button>
+            </el-radio-group>
+            <el-button type="success" @click="run_code">执行命令</el-button>
+            <el-button type="warning" @click="clear" style="margin-left:20px;margin-top:10px;margin-bottom:10px;position:relative;" slot="reference">清空</el-button>
+        </div>
+        <!-- 输出区域 -->
+        <div style="padding:5px; border:1px dashed #e6a23c; border-radius:10px; margin:10px;">
+            <el-popover placement="top-start" title="输出区域" width="200" trigger="hover" content="经过加密或者解密操作后，下方得出最终的加密或者解密结果">
+                <el-button type="warning" style="margin-left:20px;margin-top:20px;position:relative;" slot="reference">输出区域</el-button>
+            </el-popover>
+            <el-input type="textarea" style="margin-left:20px;margin-bottom:20px;margin-top:20px; width:530px;" :autosize="{ minRows: 3, maxRows: 5}"  placeholder="此处为加密或者解密的输出内容" v-model="output_txt"></el-input>
+        </div>
+    </div>
+</body>
+</html>
